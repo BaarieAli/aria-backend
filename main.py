@@ -27,10 +27,13 @@ class ChatRequest(BaseModel):
     context: str
 
 def search_web(query: str):
+    """Search the web with 'news' appended for better news results."""
     try:
-        print(f"🔍 Searching for: {query}")
+        # Add "news" to force news-related results
+        news_query = f"{query} news"
+        print(f"🔍 Searching for: {news_query}")
         with DDGS() as ddgs:
-            results = list(ddgs.text(query, max_results=3))
+            results = list(ddgs.text(news_query, max_results=3))
             print(f"✅ Found {len(results)} results")
             if results:
                 print(f"📄 First result: {results[0].get('body', '')[:100]}...")
@@ -67,8 +70,8 @@ async def chat(request: ChatRequest):
     else:
         full_prompt = request.context + "\n\n(No search results found. Answer based on your knowledge.)"
 
-    # 🔍 DEBUG: Print the full prompt
-    print(f"📤 FULL PROMPT SENT TO DEEPSEEK:\n{full_prompt[:500]}...\n")
+    # Log full prompt (truncated for readability)
+    print(f"📤 FULL PROMPT (first 500 chars):\n{full_prompt[:500]}...\n")
 
     response = client.chat.completions.create(
         model="deepseek-chat",
